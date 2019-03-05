@@ -1,74 +1,84 @@
-var table = document.createElement('table');
-table.setAttribute('id', 'dynamic_table');
-
 $(document).ready(function () {
 
     $("#driver").click(function (event) {
-        $.getJSON("https://jsonplaceholder.typicode.com/posts", function (jd) {
+        $.ajax({
+            type: "GET",
+            url: "https://jsonplaceholder.typicode.com/posts",
+            success: function (result) {
+                function creatingTable(){
+                    let previoustable = document.getElementById('dynamic_table');
+                    if(!!previoustable){
+                        previoustable.remove();
+                    }    
 
-            var key = Object.keys(jd[0]);
-            var value = jd.map((elements) => {
-                return Object.values(elements);
-            });
-            jd.sort();
-            var tr = document.createElement('tr');
-            for (let i = 0; i < key.length; i++) {
-                var th = document.createElement('th');
-                th.setAttribute('id', key[i])
-                var text = document.createTextNode(key[i]);
-                th.appendChild(text);
-                tr.appendChild(th);
-            }
-            table.appendChild(tr);
+                var table = document.createElement('table');
+                table.setAttribute('id', 'dynamic_table');
+                var key = Object.keys(result[0]);
+                var value = result.map((elements) => {
+                    return Object.values(elements);
+                });
+                console.log("keys" + key)
+                console.log("values" + value)
 
-            for (let i = 0; i < value.length; i++) {
-                tr = document.createElement('tr');
-                for (let j = 0; j < key.length; j++) {
-                    var td = document.createElement('td');
-                    var text = document.createTextNode(value[i][j]);
-                    td.appendChild(text);
-                    tr.appendChild(td);
-                }
+                var tr = document.createElement('tr');
+                key.map(function (element) {
+                    var th = document.createElement('th');
+                    th.setAttribute('id', element)
+                    var text = document.createTextNode(element);
+                    th.appendChild(text);
+                    tr.appendChild(th);
+                })
                 table.appendChild(tr);
-            }
-            document.body.appendChild(table);
-            sortTable();
+                
 
+                result.map(function(element){
+                    tr = document.createElement('tr');
+                    key.map(function(elementKey){
+                        var td = document.createElement('td');
+                        var text = document.createTextNode(element[elementKey]);
+                        td.appendChild(text);
+                        tr.appendChild(td);
+                    })
+                    table.appendChild(tr);
+                })
+                document.body.appendChild(table);
+                addEventsToHeaders();
+                
+            }
+            function addEventsToHeaders(){
+                var header=Object.keys(result[0]);
+                console.log(header);
+            for(let i=0;i<header.length;i++)
+            {
+                document.getElementById(header[i]).addEventListener('click',function(event){
+                    event.preventDefault();
+                 sortTable(event.target.innerHTML)
+            });
+            }
+        }
+        
+        let flag = true;
+        function sortTable(param){
+            result.sort(compare);
+            function compare(a,b){
+                if(a[param]>b[param] && flag){
+                    return 1;
+                }
+                else
+        
+                return -1;
+            }
+            flag=!flag;
+            creatingTable();
+        }
+        creatingTable();
+
+        }
+        
+            
         });
+
+        	
+
     });
 });
-//sorted on the basis of title
-function sortTable() {
-    var table, rows, switching, i, x, y, shouldSwitch;
-    table = document.getElementById("dynamic_table");
-    switching = true;
-    /*Make a loop that will continue until
-    no switching has been done:*/
-    while (switching) {
-        //start by saying: no switching is done:
-        switching = false;
-        rows = table.rows;
-        /*Loop through all table rows (except the
-        first, which contains table headers):*/
-        for (i = 1; i < (rows.length - 1); i++) {
-            //start by saying there should be no switching:
-            shouldSwitch = false;
-            /*Get the two elements you want to compare,
-            one from current row and one from the next:*/
-            x = rows[i].getElementsByTagName("TD")[2];
-            y = rows[i + 1].getElementsByTagName("TD")[2];
-            //check if the two rows should switch place:
-            if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
-                //if so, mark as a switch and break the loop:
-                shouldSwitch = true;
-                break;
-            }
-        }
-        if (shouldSwitch) {
-            /*If a switch has been marked, make the switch
-            and mark that a switch has been done:*/
-            rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
-            switching = true;
-        }
-    }
-}

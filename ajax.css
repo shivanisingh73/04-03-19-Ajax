@@ -1,0 +1,13 @@
+table,
+th,
+td {
+    font: 17px Calibri;
+    border: solid 2px rgb(10, 10, 10);
+    border-collapse: collapse;
+    padding: 2px 3px;
+    text-align: center;
+    margin: 10px 0;
+}
+th {
+    font-weight: bold;
+}
